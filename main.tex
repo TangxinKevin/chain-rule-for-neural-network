@@ -1,0 +1,90 @@
+\documentclass[a4paper]{article}
+
+\usepackage{fullpage} % Package to use full page
+\usepackage{parskip} % Package to tweak paragraph skipping
+\usepackage{tikz} % Package for drawing
+\usepackage{amsmath}
+\usepackage{hyperref}
+
+\title{Chain rule for one layer neural network}
+\author{Tang Xin (tangxint@gmail.com)}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This is a draft for understanding how to use chain rule to compute the derivative of cost with respect to weights and bias.
+\end{abstract}
+
+\section{Problem}
+\label{sec:problem}
+Assume that we have a very simple neural network. It can be described by the following Equation:
+\begin{equation}
+\label{eq:nn}
+    y=\sigma(XW+b),
+\end{equation}
+where $W\in R^{m\times 1}, X\in R^{1\times m}$ and b is a scalar.
+
+We also assume that we have $n$ pairs of training samples ${(x_i, y_i)}_{i=1}^{n}$. 
+
+In order to train the neural network, we have used mean square error as loss function. So, we have
+\begin{equation}
+\label{eq:total_cost}
+\begin{split}
+    L &=  \frac{1}{n}\sum_{i=1}^{n}{(y_i - \hat{y}_i)^2} \\
+      &=  \frac{1}{n}\sum_{i=1}^{n}{(y_i - \sigma(x_iW+b))^2}, \\
+\end{split}
+\end{equation}
+where $x_i$ is the $i$-th training sample and $\hat{y}_i$ is the prediction of the one layer neural network. 
+
+So, we need to compute the derivative of $L$ with respect to $W$ and $b$.
+
+\section{The decomposition of cost}
+In Equation \ref{eq:total_cost}, we can see the cost is the average cost for all training samples. Hence let's denote $L_i=(y_i - \hat{y}_i)^2$. We can rewrite the cost $L$ as:
+\begin{equation*}
+    L = \frac{1}{n}{\sum_{i=1}^{n}{L_i}}  
+\end{equation*}
+
+Obviously, the derivatives of $L$ with respect to $W$ and $b$ are as following:
+\begin{align}
+\label{eq:decomposition}   
+\frac{\partial{L}}{\partial{W}} & = \frac{1}{n}\sum_{i=1}^{n}{\frac{\partial{L_i}}{\partial{W}}}  \\
+\frac{\partial{L}}{\partial{b}} & = \frac{1}{n}\sum_{i=1}^{n}{\frac{\partial{L_i}}{\partial{b}}}  \\
+\end{align}
+Therefore, we just need to compute the derivative of cost for each sample $L_i$. 
+
+\section{The derivative of $L_i$ with respect to $W$}
+As we known, 
+\begin{align}
+\label{eq:loss}
+    L_i & =  (y_i - \hat{y}_i)^2 \\
+        & =   (y_i - \sigma(z_i))^2 \\
+        & =   (y_i - \sigma(x_iW+b))^2 
+\end{align}
+
+Therefore, according to chain rule, the derivative of $L_i$ respect to $W$ is
+
+\begin{align}
+    \frac{\partial{L_i}}{\partial{W}} &= \frac{\partial{L_i}}{\partial{\hat{y}_i}}\frac{\partial{\hat{y}_i}}{\partial{W}} \\
+    &= \frac{\partial{L_i}}{\partial{\hat{y}_i}}\frac{\partial{\hat{y}_i}}{\partial{z_i}}\frac{\partial{z_i}}{\partial{W}} 
+\end{align}
+
+At the same time, from Equation (\ref{eq:loss}), we have
+\begin{align}
+\label{eq:loss}
+    & \frac{\partial{L_i}}{\partial{\hat{y}_i}} = 2(\hat{y}_i - y_i) \\
+    & \frac{\partial{\hat{y}_i}}{\partial{z_i}} = \frac{\partial{\sigma(z_i))}}{\partial{z_i}} = \sigma{z_i}(1-\sigma{z_i}) \\
+    & \frac{\partial{z_i}}{\partial{W}} = x_i^T 
+\end{align}
+
+Therefore, we get
+\begin{equation}
+   \frac{\partial{L_i}}{\partial{W}} = 2(\hat{y}_i - y_i)\sigma{z_i}(1-\sigma{z_i})x_i^T
+\end{equation}
+
+
+\bibliographystyle{plain}
+\bibliography{bibliography.bib}
+\end{document}
